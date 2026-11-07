@@ -1,4 +1,4 @@
-# 02 — Reference architecture and tradeoffs
+# 02, Reference architecture and tradeoffs
 
 *Status: design note. Numbers are estimates unless marked "verified"; see
 `01-latency-and-data-landscape.md` for source facts.*
@@ -25,7 +25,7 @@
                   │  per-source adapters (own cadence, cursor, rate limit, QC)
                   ▼
         ┌───────────────────┐
-        │  scheduler        │  cron/APScheduler/Celery-beat — NOT Kafka
+        │  scheduler        │  cron/APScheduler/Celery-beat, NOT Kafka
         └─────────┬─────────┘
                   ▼
    ┌──────────────────────────────┐
@@ -58,7 +58,7 @@
    cross-cutting: per-source health metrics → internal Grafana board
 ```
 
-## Decision 1 — Ingest: scheduler, not stream
+## Decision 1, Ingest: scheduler, not stream
 
 **Recommendation: scheduled pull + idempotent upsert.**
 
@@ -85,7 +85,7 @@ Operational guards:
 - exponential backoff + `Retry-After` respect; never hammer a 429
 - run ledger so a silent failure is visible
 
-## Decision 2 — Storage: one Postgres until it hurts
+## Decision 2, Storage: one Postgres until it hurts
 
 | Option | Strength | Cost | Verdict |
 |---|---|---|---|
@@ -136,7 +136,7 @@ stale. Either enable `timescaledb.materialized_only = false`, or query the raw
 tail explicitly and label it provisional. Do not let an empty chart imply "no
 pollution".
 
-## Decision 3 — Raster serving: never render per request
+## Decision 3, Raster serving: never render per request
 
 Per-request raster processing (mosaic, reproject, colormap) is the single most
 common cause of slow, expensive environmental dashboards.
@@ -152,7 +152,7 @@ Rule: **anything visible by default is precomputed.** Dynamic computation is
 only for explicit user actions (draw an AOI, change the index), where a spinner
 is acceptable.
 
-## Decision 4 — API contract
+## Decision 4, API contract
 
 The freshness contract is the product differentiator, so give it a shape:
 
@@ -183,7 +183,7 @@ Also: `ETag` + `Cache-Control: public, max-age=30, stale-while-revalidate=300`.
 Clamp `bbox` area and point counts; an unbounded bbox query is a DoS you wrote
 yourself.
 
-## Decision 5 — Frontend
+## Decision 5, Frontend
 
 | Need | Choice | Reason |
 |---|---|---|
@@ -201,7 +201,7 @@ animating a marker to imply movement the data does not have.
 panel is weak, and it cannot express per-layer freshness), generic BI tools.
 Both are excellent for the *internal* health board.
 
-## Decision 6 — Deployment
+## Decision 6, Deployment
 
 **Single VM + Docker Compose** (Postgres/Timescale+PostGIS, API, worker,
 scheduler, Caddy/nginx). Reasons: the workload is one database and a few Python
@@ -224,7 +224,7 @@ an orchestrator. Scale reads with a replica and a CDN before sharding.
 | **Raster request storm** | latency cliff at zoom-out | pre-tiled layers, bbox/zoom clamps, CDN |
 | **Schema drift upstream** | nulls, wrong units | validate against a contract; fail loudly into the run ledger |
 
-## Observability — monitor the monitor
+## Observability, monitor the monitor
 
 Emit, per source and per layer: `last_success_at`, `last_observed_at`, rows
 written, run duration, error class, rate-limit remaining. Alert on

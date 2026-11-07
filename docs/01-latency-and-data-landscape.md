@@ -1,4 +1,4 @@
-# 01 — Latency and the data landscape
+# 01, Latency and the data landscape
 
 *Status: research note. All timings below are nominal figures published by the data
 provider, not measurements of this system. Verified 2026-11-07.*
@@ -33,7 +33,7 @@ observation_age = processing_latency
 ```
 
 The middle term is the trap. For optical satellites it is set by revisit,
-**cloud cover**, daylight, off-nadir angle and QC rejection — and in cloudy
+**cloud cover**, daylight, off-nadir angle and QC rejection, and in cloudy
 regions it dwarfs processing latency by one to two orders of magnitude. A
 Sentinel-2 L2A scene processed in under 3 hours over a persistently cloudy
 region can still mean the newest usable pixels at a given point are weeks old.
@@ -56,41 +56,41 @@ more trustworthy than a Tier 0 sensor.
 
 | Tier | Typical age | Mechanism | Examples |
 |---|---|---|---|
-| **0 — live push** | seconds | direct broadcast / websocket / MQTT | GOES mesoscale (30–60 s), FIRMS URT (<60 s, US/Canada only), your own sensors |
-| **1 — frequent poll** | 1–60 min | REST poll or file drop | PurpleAir (2-min averaging), AirNow (:25/:55 past hour), USGS telemetry |
-| **2 — LEO NRT** | 1–3 h | mission ground segment | Sentinel-2 NRT, Sentinel-5P NRTI, Sentinel-3 AOD NRT, FIRMS global NRT |
-| **3 — forecast / daily model** | 6–24 h | scheduled model run | CAMS (00/12 UTC), numerical weather prediction |
-| **4 — science quality** | days–months | reprocessing, QA, archive | Sentinel-5P OFFL, FIRMS archive replacement, EPA AQS, Landsat standard products |
+| **0, live push** | seconds | direct broadcast / websocket / MQTT | GOES mesoscale (30–60 s), FIRMS URT (<60 s, US/Canada only), your own sensors |
+| **1, frequent poll** | 1–60 min | REST poll or file drop | PurpleAir (2-min averaging), AirNow (:25/:55 past hour), USGS telemetry |
+| **2, LEO NRT** | 1–3 h | mission ground segment | Sentinel-2 NRT, Sentinel-5P NRTI, Sentinel-3 AOD NRT, FIRMS global NRT |
+| **3, forecast / daily model** | 6–24 h | scheduled model run | CAMS (00/12 UTC), numerical weather prediction |
+| **4, science quality** | days–months | reprocessing, QA, archive | Sentinel-5P OFFL, FIRMS archive replacement, EPA AQS, Landsat standard products |
 
 ### Verified source catalog
 
 | Source | What you get | Native cadence | Nominal latency | Access | Notes |
 |---|---|---|---|---|---|
 | **GOES-16/18 ABI** | imagery, fire/hotspot, aerosol, cloud | Mode 6: full disk 10 min, CONUS 5 min, mesoscale 1 min (30 s on one domain) | seconds after scan | AWS S3 (open), NOAA CLASS | Fastest *raster* tier available publicly. CONUS/PACUS only. |
-| **NASA FIRMS — URT** | thermal anomaly points | continuous | **<60 s** after overpass | FIRMS API / WFS | US & Canada only. Removed once NRT arrives, or after 6 h. |
-| **NASA FIRMS — NRT** | MODIS 1 km, VIIRS 375 m fire points | ~4 overpasses/day/sensor | **≤3 h globally** | FIRMS API, CSV, SHP, WMS | Thermal *anomaly*, not a confirmed fire — `Type` field flags volcanoes and industrial sources. |
+| **NASA FIRMS, URT** | thermal anomaly points | continuous | **<60 s** after overpass | FIRMS API / WFS | US & Canada only. Removed once NRT arrives, or after 6 h. |
+| **NASA FIRMS, NRT** | MODIS 1 km, VIIRS 375 m fire points | ~4 overpasses/day/sensor | **≤3 h globally** | FIRMS API, CSV, SHP, WMS | Thermal *anomaly*, not a confirmed fire, `Type` field flags volcanoes and industrial sources. |
 | **PurpleAir** | PM1/2.5/10, T/RH/P, AQI | 2-min averaging | minutes | REST, API key, metered in "points" | 35,000+ sensors. Query at ≥1/min; use `modified_since` to avoid re-pulling. |
 | **Sensor.Community** | PM, T/RH/P | ~5 min *(secondary source, unverified)* | minutes | open REST, no key | Citizen science; heterogeneous hardware and siting. |
 | **EPA AirNow** | AQI observations + forecasts | observations updated hourly; bulk files refreshed twice per hour (:25/:55) | sub-hourly | API (key) + `files.airnowtech.org` bulk `.dat` | **Preliminary, not regulatory.** Explicitly must be labelled as such. AQS is the validated archive. |
 | **OpenAQ v3** | aggregated global station data | as-reported (hourly typical) | inherits upstream | REST, key, free tier 60/min & 2,000/h | Attribution required. `/latest` endpoints for map boot. |
 | **USGS Water Data** | streamflow, gage height, temp, conductance | fixed 15-min collection | "within minutes" where telemetry works; delayed otherwise | `api.waterdata.usgs.gov` (`/continuous`, `/latest-continuous`) | Provisional until reviewed. Legacy `waterservices /iv` still documented. |
 | **Sentinel-2 L2A** | 10/20/60 m surface reflectance | ≤5 days global reuse (mission requirement, 2 satellites) | **RT ≤100 min; NRT 100 min–3 h; NTC 3–24 h** | CDSE STAC, S3, Earth Search | Latency figures are the *mission requirement*, not measured operational performance. |
-| **Sentinel-5P TROPOMI** | NO2, SO2, O3, CO, CH4, aerosol index | daily global coverage | **NRTI ≤3 h**; OFFL *a few days*; RPRO reprocessed | CDSE, NASA GES DISC | NRT granules are 5-min chunks; NASA archives NRT for only ~10 days — you must persist what you need. |
+| **Sentinel-5P TROPOMI** | NO2, SO2, O3, CO, CH4, aerosol index | daily global coverage | **NRTI ≤3 h**; OFFL *a few days*; RPRO reprocessed | CDSE, NASA GES DISC | NRT granules are 5-min chunks; NASA archives NRT for only ~10 days, you must persist what you need. |
 | **Sentinel-3 SLSTR AOD** | aerosol optical depth, 9.5 km | daily | **≤3 h (NRT)** | CDSE STAC | Useful as an independent check on model AOD. |
 | **CAMS global** | 50+ species, 7 aerosol types, met fields | **2 runs/day (00 & 12 UTC)**, hourly surface fields, 6-hourly analyses | ~hours after run | ADS / CDS API, FTP | 5-day horizon, ~40 km. Analysis is a *model estimate*, not an observation. |
-| **Sentinel-1 SAR** | C-band backscatter (floods, ships, deformation) | 6–12 day revisit | NRT ≤3 h* | CDSE, ASF | Sees through cloud and at night — the only optical-independent option. |
+| **Sentinel-1 SAR** | C-band backscatter (floods, ships, deformation) | 6–12 day revisit | NRT ≤3 h* | CDSE, ASF | Sees through cloud and at night, the only optical-independent option. |
 
 \* Sentinel-1's "NRT ≤3 h" is the Copernicus programme-wide timeliness definition
 as documented by a reseller, not a mission-spec figure. Treat it as approximate.
 
-### Not yet verified — do not design against these without checking
+### Not yet verified, do not design against these without checking
 
 - **Landsat 8/9 C2 L2** latency and access path.
-- **Open-Meteo / commercial weather APIs** — free-tier licensing is
+- **Open-Meteo / commercial weather APIs**, free-tier licensing is
   non-commercial for several; verify before public display.
 - **Sensor.Community** cadence is from a third-party client library, not the
   operator's docs.
-- **Commercial sensor APIs** (PurpleAir paid tiers, Tomorrow.io, Ambee, etc.) —
+- **Commercial sensor APIs** (PurpleAir paid tiers, Tomorrow.io, Ambee, etc.) -
   pricing and redistribution terms change; read the current contract.
 
 ## Latency budget arithmetic
@@ -108,7 +108,7 @@ worst-case observation age   ~67 min
 ```
 
 So a "live air quality" map is normally showing data **about an hour old**, and
-up to roughly 75 minutes old in the worst case. That is fine — but the UI must
+up to roughly 75 minutes old in the worst case. That is fine, but the UI must
 say "as of 14:00" rather than "live".
 
 Rules of thumb:
@@ -137,7 +137,7 @@ Rules of thumb:
    cadence of 1 minute to 1 day. A message bus buys nothing until you own
    high-frequency sensors.
 2. **One adapter per source**, each carrying its own cadence, cursor state,
-   rate limit and QC rules. Do not write a generic "REST poller" — the sources
+   rate limit and QC rules. Do not write a generic "REST poller", the sources
    disagree on pagination, time semantics and identity.
 3. **Freshness is data**, not decoration. It belongs in the schema and the API
    contract, and it drives alerting.
@@ -150,7 +150,7 @@ Rules of thumb:
 
 All accessed 2026-11-07.
 
-- ESA, *Sentinel-2 — ESA's Optical High-Resolution Mission for GMES
+- ESA, *Sentinel-2, ESA's Optical High-Resolution Mission for GMES
   Operational Services* (SP-1322/2), product timeliness RT/NRT/NTC and revisit
   requirements: https://sentiwiki.copernicus.eu/__attachments/a_0a9fb7c4de08a522b0f8a34b7bd1205b3a8f4188bac27db53fef268438e042c9/Sentinel-2%20ESA%E2%80%99s%20Optical%20High-Resolution%20Mission%20for%20GMES%20Operational%20Services.pdf
 - NASA Earthdata, *Data Latency* (FIRMS 3 h; URT <60 s):
@@ -192,12 +192,12 @@ All accessed 2026-11-07.
   https://docs.openaq.org/using-the-api/rate-limits
 - OpenAQ, *Measurements* (`/latest`, aggregation endpoints):
   https://docs.openaq.org/resources/measurements
-- USGS, *Water Data APIs — continuous values* (15-min, telemetry-dependent):
+- USGS, *Water Data APIs, continuous values* (15-min, telemetry-dependent):
   https://api.waterdata.usgs.gov/ogcapi/v1/collections/continuous?f=html
 - USGS Water Services, *Instantaneous Values* (15-min readings, hourly
   transmission):
   https://waterservices.usgs.gov/docs/instantaneous-values/instantaneous-values-details
-- CREODIAS, *Timeliness and frequency of Sentinel products* — the "NRT <3 h"
+- CREODIAS, *Timeliness and frequency of Sentinel products*, the "NRT <3 h"
   Copernicus timeliness definition used for Sentinel-1 (*reseller documentation,
   secondary source*):
   https://creodias.eu/cases/timeliness-and-frequency-of-sentinel-satellite-products-explained
