@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What the satellite actually saw: Sentinel-1 flood coverage</title>
+<meta name="description" content="Measured: how often a Sentinel-1 look falls inside a flood's rise, on four basins in Europe and Indonesia, across 12 months of real acquisition metadata." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" />
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body class="is-loading">
+<a class="skip" href="#reading">Skip to the finding</a>
+
+<p class="boot" id="boot" role="status">Loading acquisition metadata</p>
+
+<header class="masthead">
+  <div class="wrap mast-inner">
+    <div class="mast-lead">
+      <p class="dateline">Sentinel-1 GRD<span class="sep">/</span>four basins<span class="sep">/</span>two continents<span class="sep">/</span>12 months</p>
+      <h1>What the satellite actually saw</h1>
+      <p class="thesis">
+        Flood monitoring is not limited by how fast the map arrives. It is limited
+        by how rarely the satellite looks, relative to how fast the water moves.
+        One method, four basins, two continents, a year of real acquisition
+        metadata, and the same collection throughout. A free forecast already
+        exists for every basin here. What is missing is an observation fast enough
+        to check it.
+      </p>
+    </div>
+    <dl class="mast-meta">
+      <div><dt>collection</dt><dd id="m-collection">sentinel-1-grd</dd></div>
+      <div><dt>window</dt><dd id="m-window">-</dd></div>
+      <div><dt>looks</dt><dd id="m-looks">-</dd></div>
+      <div><dt>computed</dt><dd id="m-built">-</dd></div>
+    </dl>
+  </div>
+</header>
+
+<main>
+
+  <section class="reading" id="reading" aria-labelledby="h-reading">
+    <div class="wrap">
+      <div class="reading-top">
+        <h2 class="sect" id="h-reading"><span class="num">01</span>The finding</h2>
+        <div class="seg" role="tablist" aria-label="Choose a basin" id="tabs"></div>
+      </div>
+
+      <div class="reading-grid">
+        <div class="figure">
+          <div class="figure-num" id="claim-pct">0%</div>
+          <p class="figure-label">of floods caught<br />during their rise</p>
+        </div>
+        <div class="reading-copy">
+          <p class="claim" id="claim"></p>
+          <p class="metrics" id="metrics"></p>
+          <p class="rise-src" id="rise-src"></p>
+        </div>
+      </div>
+
+      <figure class="strip-fig">
+        <div class="strip" id="strip"></div>
+        <figcaption id="strip-note"></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="shell wrap">
+    <div class="stack">
+
+      <section class="sect" aria-labelledby="h-sweep">
+        <h2 class="sect" id="h-sweep"><span class="num">02</span>Observation probability by rise time</h2>
+        <p class="note" id="sweep-note"></p>
+        <div class="legend" id="legend"></div>
+        <div class="chart" id="sweep-chart"></div>
+        <p class="fignote" id="sweep-fignote"></p>
+      </section>
+
+      <section class="sect" aria-labelledby="h-gaps">
+        <h2 class="sect" id="h-gaps"><span class="num">03</span>Gap between looks</h2>
+        <p class="note">Hours between consecutive distinct Sentinel-1 acquisitions over the basin. The shape of this distribution sets what the basin is able to see. Amber marks a gap of 48 hours or more.</p>
+        <div class="hist" id="hist"></div>
+        <dl class="statline" id="stats"></dl>
+      </section>
+
+      <section class="sect" aria-labelledby="h-clock">
+        <h2 class="sect" id="h-clock"><span class="num">04</span>When the satellite looks</h2>
+        <p class="note" id="clock-note"></p>
+        <div class="clock" id="clock"></div>
+        <p class="clock-lit" id="clock-lit"></p>
+      </section>
+
+      <section class="sect sect-loud" aria-labelledby="h-blackout">
+        <h2 class="sect" id="h-blackout"><span class="num">05</span>The longest blackout</h2>
+        <div class="blackout">
+          <div class="blackout-num" id="blackout-num"></div>
+          <dl class="blackout-range" id="blackout-range"></dl>
+          <p class="blackout-note" id="blackout-note"></p>
+        </div>
+      </section>
+
+      <section class="sect" aria-labelledby="h-year">
+        <h2 class="sect" id="h-year"><span class="num">06</span>The year, as gaps</h2>
+        <p class="note">Top lane: one tick per acquisition. Bottom lane: every gap, with its length drawn. Amber is time in which no look was possible.</p>
+        <div class="timeline" id="timeline"></div>
+        <p class="fignote" id="timeline-note"></p>
+      </section>
+
+      <section class="sect" aria-labelledby="h-fc">
+        <h2 class="sect" id="h-fc"><span class="num">07</span>The forecast</h2>
+        <p class="note" id="fc-note">A prediction already exists and it is free: GloFAS publishes a 30 day river discharge forecast for every basin on this page. So the useful question is not whether we can forecast. It is whether anything can check the forecast. Each row is a real forecast pulled today, next to the measured chance, averaged over the year, that a Sentinel-1 look lands within a day of a forecast peak. No future acquisition times exist, so this is a rate, not a prediction about a particular date.</p>
+        <div class="fc" id="forecast"></div>
+        <p class="fignote" id="fc-fignote"></p>
+      </section>
+
+      <section class="sect limits" aria-labelledby="h-limits">
+        <h2 class="sect" id="h-limits"><span class="num">08</span>What this does not tell you</h2>
+        <ol>
+          <li><strong>No acquisition is not no flood.</strong> A gap means we did not look, not that water was absent. Nothing here should be read as zero.</li>
+          <li><strong>Product latency is not the constraint.</strong> Copernicus GFM publishes a global 20 m flood layer in under 8 hours for more than 99% of scenes. The limit is revisit, not processing.</li>
+          <li><strong>SAR has its own errors.</strong> CEMS reports over-detection from water look-alikes, and under-detection under dense vegetation, in wind, and in urban areas.</li>
+          <li><strong>Rise times are assumptions.</strong> 48 hours for a lowland river and 6 hours for a steep catchment are order-of-magnitude values, not per-event measurements. The sweep shows how the conclusion moves if they are wrong.</li>
+          <li><strong>The forecast covers rivers only.</strong> GloFAS states it gives no flash-flood, coastal, or inundation-extent forecast, so the case that fails here is also the case with no model to fall back on.</li>
+          <li><strong>Coverage is not equal, and the difference is large.</strong> Same collection, same window, same method: 315 looks a year over the Po, 250 over the Ahr, 78 over Riau, 51 over Jakarta. A basin's cadence sets the shortest flood it can see, which is why a week-long peat flood in Riau is caught nearly every time while a six-hour one in Jakarta almost never is.</li>
+          <li><strong>Europe is the optimistic case.</strong> Both European basins sit inside the Sentinel-1 European observation scenario, which plans them for frequent revisit. Four basins do not describe the world, but the Indonesian pair shows how far below the European figure coverage can fall.</li>
+        </ol>
+      </section>
+
+    </div>
+
+    <aside class="rail" aria-labelledby="h-map">
+      <h2 class="sect" id="h-map"><span class="num">+</span>Where</h2>
+      <div class="map-frame">
+        <div id="map"></div>
+      </div>
+      <p class="map-caption" id="map-caption">-</p>
+      <p class="map-note">The outline is the bounding box used for the STAC query, not a catchment boundary.</p>
+      <p class="attrib">Basemap: Esri, HERE, Garmin, &copy; OpenStreetMap contributors, and the GIS user community</p>
+      <div class="provenance" id="provenance"></div>
+    </aside>
+  </div>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <span>Acquisition metadata from Microsoft Planetary Computer STAC. Statistics computed locally, not quoted.</span>
+    <span id="foot-window"></span>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
