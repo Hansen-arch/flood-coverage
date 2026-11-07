@@ -2,6 +2,8 @@
 
 **Does a satellite actually see a flood while it is rising?**
 
+![The app on load: the 3 percent finding for Jakarta, with the one-year acquisition strip below](docs/preview.png)
+
 A flood map tells you where water was. This measures something different: how much
 of a flood's rise is ever observed at all, and whether a forecast can be checked.
 
@@ -74,6 +76,8 @@ GloFAS already publishes a free 30 day river discharge forecast, so predicting i
 not the hard part. The question is whether the prediction can be **checked**. Each
 forecast peak is paired with the measured chance that a look lands within 24 hours
 of it.
+
+![Four forecast peaks with their mini hydrographs and the share checkable within a day](docs/preview-forecast.png)
 
 | basin | forecast peak | date | vs 30-day median | peak checkable within a day |
 |---|---|---|---|---|
